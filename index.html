@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>my-launcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f4fb;--card:#fff;--text:#1c2233;--muted:#697089;--line:#e3e6f2;--accent:#4f6df5;--shadow:0 1px 2px rgba(30,40,90,.06),0 8px 24px rgba(30,40,90,.07);--shadow-h:0 2px 4px rgba(30,40,90,.08),0 16px 36px rgba(30,40,90,.16)}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1220;--card:#1a1f33;--text:#e8ebf7;--muted:#98a0bd;--line:#2b3250;--accent:#8aa2ff;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);--shadow-h:0 2px 4px rgba(0,0,0,.4),0 16px 36px rgba(0,0,0,.5)}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-family:"Noto Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;color:var(--text);min-height:100vh;
+  background:radial-gradient(900px 400px at 10% -5%,rgba(79,109,245,.16),transparent 60%),radial-gradient(800px 380px at 95% 0%,rgba(232,71,139,.13),transparent 60%),radial-gradient(700px 420px at 50% 110%,rgba(20,179,125,.10),transparent 60%),var(--bg);background-attachment:fixed}
+header{padding:20px 24px;background:linear-gradient(120deg,#4338ca 0%,#6d4cf0 45%,#d946a8 100%);display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;color:#fff;position:relative;overflow:hidden}
+header::before,header::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
+header::before{width:220px;height:220px;right:-60px;top:-110px}
+header::after{width:140px;height:140px;left:30%;bottom:-90px;background:rgba(255,255,255,.07)}
+header>*{position:relative;z-index:1}
+h1{font-family:"Prompt","Noto Sans Thai",sans-serif;font-size:24px;font-weight:600;margin:0;letter-spacing:.2px;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+input{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:240px;outline:none}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+header input{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:#fff;backdrop-filter:blur(6px)}
+header input::placeholder{color:rgba(255,255,255,.75)}
+header input:focus{background:rgba(255,255,255,.28);border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+main{max-width:1200px;margin:auto;padding:22px 20px 40px}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tags button{font:inherit;font-size:14px;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 16px 6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.tags button::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c,var(--accent))}
+.tags button:hover{transform:translateY(-1px);border-color:var(--c,var(--accent));box-shadow:var(--shadow)}
+.tags button.on{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--c,var(--accent)) 45%,transparent)}
+.tags button.on::before{background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+.card{--c:var(--accent);background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);position:relative;transition:transform .18s,box-shadow .18s;animation:rise .4s both}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 45%,#fff));z-index:2}
+.card:hover{transform:translateY(-5px);box-shadow:var(--shadow-h)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.thumb{height:150px;display:flex;align-items:center;justify-content:center;font-family:"Prompt",sans-serif;font-size:48px;font-weight:700;color:rgba(255,255,255,.95);background-size:cover;background-position:top;position:relative}
+.thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.18))}
+.body{padding:14px 14px 14px;display:flex;flex-direction:column;gap:7px;flex:1}
+.body h2{font-family:"Prompt","Noto Sans Thai",sans-serif;font-size:17px;font-weight:600;margin:0}
+.body p{font-size:13px;color:var(--muted);margin:0;flex:1;line-height:1.5}
+.tag{align-self:flex-start;font-size:11.5px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border-radius:999px;padding:2px 10px}
+.row{display:flex;gap:8px;margin-top:6px}
+.row a,.row button{font:inherit;font-size:13px;text-align:center;border-radius:10px;padding:7px 10px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);text-decoration:none;transition:.15s}
+.row button:hover{border-color:var(--c,var(--accent));color:var(--c,var(--accent))}
+.row a{background:linear-gradient(135deg,var(--c,var(--accent)),color-mix(in srgb,var(--c,var(--accent)) 65%,#000));border:0;color:#fff;flex:1;font-weight:600;padding:9px 10px;box-shadow:0 4px 12px color-mix(in srgb,var(--c,var(--accent)) 40%,transparent)}
+.row a:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.mode{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.16);border-radius:12px;padding:3px}
+.mode button{font:inherit;color:#fff;background:transparent;border:0;border-radius:9px;padding:6px 12px;cursor:pointer}
+.mode button.on{background:#fff;color:#4338ca;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:20px}
+.ecard{--c:var(--accent);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.pill{background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 65%,#000));color:#fff;border-radius:999px;padding:7px 16px;text-align:center;font-weight:600;font-family:"Prompt",sans-serif}
+.ecard iframe{width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:10px;background:#fff}
+.ecard .row a{flex:0 0 auto}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:linear-gradient(135deg,#4f6df5,#7c4dff);border:0;color:#fff;box-shadow:0 4px 12px rgba(79,109,245,.35)}
+header .btn{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:#fff;backdrop-filter:blur(6px)}
+header .btn:hover{background:rgba(255,255,255,.3)}
+header .btn.primary{background:#fff;color:#4338ca;border:0;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.row .sm{flex:1 1 0;padding:6px 6px;font-size:12px}
+.row .danger{color:#e5484d;border-color:color-mix(in srgb,#e5484d 50%,var(--line))}
+.row .danger:hover{background:#e5484d;color:#fff;border-color:#e5484d}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--text);width:min(520px,94%);box-shadow:0 24px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(15,18,40,.5);backdrop-filter:blur(3px)}
+dialog label{display:block;font-size:12px;color:var(--muted);margin-top:10px}
+dialog input[type=text],dialog textarea{width:100%;min-width:0;margin-top:3px}
+dialog textarea{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;resize:vertical;outline:none}
+.prev{height:90px;border-radius:10px;margin-top:6px;background:var(--bg) center/cover no-repeat;border:1px dashed var(--line)}
+#st{font-size:12px;color:rgba(255,255,255,.85)}
+.top{position:sticky;top:0;z-index:20;box-shadow:0 4px 20px rgba(30,40,90,.15)}
+.tagwrap{background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 20px}
+.tagwrap .tags{max-width:1200px;margin:0 auto}
+.tagwrap .tags button{white-space:nowrap}
+@media(max-width:700px){.top{position:static}.tagwrap{position:sticky;top:0;z-index:20}.egrid{grid-template-columns:1fr}}
+.empty{color:var(--muted);padding:40px;text-align:center;font-size:15px}
+</style>
+</head>
+<body>
+<div class="top">
+<header>
+  <h1>🚀 my-launcher</h1>
+  <div class="bar">
+    <span id="st"></span>
+    <button class="btn primary" id="bAdd">＋ เพิ่มรายงาน</button>
+    <div class="mode"><button id="mCard" class="on">การ์ด</button><button id="mEmb">แสดงรายงานจริง</button></div>
+    <button class="btn" id="bReload" title="โหลดรายการล่าสุดจาก Google Sheet">⟳</button>
+    <button class="btn" id="bSet" title="ตั้งค่า">⚙</button>
+    <input id="q" placeholder="ค้นหา เช่น ข้อมูลเขื่อน…">
+  </div>
+</header>
+<div class="tagwrap"><div class="tags" id="tags"></div></div>
+</div>
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="egrid" id="egrid" hidden></div>
+  <div class="empty" id="empty" hidden>ไม่พบรายงาน — กด “＋ เพิ่มรายงาน” เพื่อเพิ่ม</div>
+</main>
+
+<dialog id="dlg">
+  <h3 style="margin:0" id="dTitle">เพิ่มรายงาน</h3>
+  <label>ชื่อรายงาน<input type="text" id="fTitle" placeholder="เช่น แบต 12V รายวัน"></label>
+  <label>ลิงก์ (วางลิงก์ Power BI หรือเว็บ)<input type="text" id="fUrl" placeholder="https://…"></label>
+  <label>คำอธิบายสั้นๆ<textarea id="fDesc" rows="2" placeholder="รายงานนี้เกี่ยวกับอะไร"></textarea></label>
+  <label>หมวด (พิมพ์ใหม่หรือเลือกของเดิม)<input type="text" id="fTag" list="tagList" placeholder="เช่น แบตเตอรี่"></label>
+  <datalist id="tagList"></datalist>
+  <label>รูปตัวอย่าง (ไม่บังคับ — แคปหน้าจอรายงานแล้วเลือกไฟล์)<input type="file" id="fImg" accept="image/*"></label>
+  <div class="prev" id="prev"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+    <button class="btn" id="dDelImg">ลบรูป</button><button class="btn" id="dCancel">ยกเลิก</button><button class="btn primary" id="dSave">บันทึก</button>
+  </div>
+</dialog>
+
+<dialog id="sdlg">
+  <h3 style="margin:0">ตั้งค่า</h3>
+  <label>Web App URL (ลิงก์ที่ลงท้าย /exec จาก Apps Script ของชีตหน้ารวมรายงาน)<input type="text" id="sUrl" placeholder="https://script.google.com/macros/s/…/exec"></label>
+  <button class="btn" id="bUnlock" style="margin-top:6px;font-size:12px">🔒 ปลดล็อกเพื่อแก้ไข URL</button>
+  <label>Token (เว้นว่างถ้าไม่ได้ตั้งในสคริปต์)<input type="text" id="sTok"></label>
+  <p style="font-size:12px;color:var(--muted)">สำรอง/นำเข้ารายการเป็นไฟล์ .json ได้ตามปุ่มด้านล่าง</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" id="bBackup">สำรองเป็นไฟล์</button>
+    <button class="btn" id="bRestore">นำเข้าจากไฟล์</button>
+    <button class="btn" id="bMigrate">ส่งรายการในเบราว์เซอร์นี้ขึ้น Sheet</button>
+    <input type="file" id="fRestore" accept=".json" hidden>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+    <button class="btn" id="sCancel">ปิด</button><button class="btn primary" id="sSave">บันทึกการตั้งค่า</button>
+  </div>
+</dialog>
+
+<script>
+/* ใส่ Web App URL ที่นี่ได้ (หรือกรอกผ่านปุ่ม ⚙ ในหน้าเว็บ) */
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbymTD74pPgPJ7BHuBm_O3uK5EUrjifc85nttH8ZMCJtftynDmRKipo0IdeLtFWrG74D/exec';
+
+const LKEY = 'my_launcher_items_v1';   // สำรองรายการล่าสุดไว้ในเบราว์เซอร์ (ใช้ตอนออฟไลน์ / ก่อนเชื่อม Sheet)
+const DEFAULT_ITEMS = [
+  { title: 'ตัวอย่างลิงก์', desc: 'แก้ไขหรือลบการ์ดนี้ได้เลย', tag: 'ทั่วไป', img: '', url: 'https://example.com/' }
+];
+const $ = id => document.getElementById(id);
+const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){return false}return true}, del(k){try{localStorage.removeItem(k)}catch(e){}} };
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+const apiUrl = () => store.get('ml_url') || WEBAPP_URL;
+const apiTok = () => store.get('ml_tok') || '';
+let items = [], tag = '', mode = 'card', editing = '', tmpImg = '';
+const setSt = t => $('st').textContent = t;
+
+function localLoad(){
+  for (const k of [LKEY, 'my_launcher_items_v0']) {   // v1 = หน้ารวมรายงานเวอร์ชันก่อนหน้า (เก็บในเบราว์เซอร์)
+    try { const d = JSON.parse(store.get(k)); if (Array.isArray(d) && d.length) { d.forEach(x => { x.id = x.id || uid(); x.desc = x.desc || ''; x.tag = x.tag || 'ทั่วไป'; x.img = x.img || ''; }); return d; } } catch(e) {}
+  }
+  return null;
+}
+function localSave(){ if (!store.set(LKEY, JSON.stringify(items))) setSt('⚠ เก็บสำรองในเบราว์เซอร์ไม่ได้'); }
+
+async function load(){
+  const url = apiUrl();
+  if (!url) {
+    items = localLoad() || DEFAULT_ITEMS.map(x => ({...x, id: uid()}));
+    setSt('โหมดในเบราว์เซอร์ (ยังไม่ได้เชื่อม Google Sheet — กด ⚙)'); renderAll(); return;
+  }
+  setSt('กำลังโหลด…');
+  try {
+    const res = await fetch(url + '?token=' + encodeURIComponent(apiTok()) + '&_=' + Date.now());
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'โหลดไม่สำเร็จ');
+    items = j.items; localSave();
+    setSt(`Google Sheet · ${items.length} รายการ`);
+  } catch(e) {
+    items = localLoad() || [];
+    setSt('⚠ เชื่อม Sheet ไม่สำเร็จ แสดงรายการที่จำไว้ล่าสุด (' + e.message + ')');
+  }
+  renderAll();
+}
+
+async function post(body){
+  const res = await fetch(apiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ token: apiTok(), ...body }) });
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'ส่งไม่สำเร็จ');
+  return j;
+}
+// เขียนข้อมูล: ถ้าเชื่อม Sheet ส่งไปที่ Sheet แล้วโหลดใหม่ ถ้าไม่ก็แก้ในเบราว์เซอร์
+async function mutate(body, localFn){
+  if (!apiUrl()) { localFn(); localSave(); renderAll(); return; }
+  setSt('กำลังบันทึกลง Sheet…');
+  try { await post(body); }
+  catch(e) {
+    if (!(e instanceof TypeError)) { setSt('⚠ ' + e.message); return; } // TypeError = เบราว์เซอร์อ่านผลตอบกลับไม่ได้ แต่คำขอมักถูกส่งไปแล้ว
+  }
+  await load();
+}
+
+const colors = ['#4f6df5','#f06a3a','#14b37d','#9b5cf6','#e8478b','#0fa5c0','#e6a117','#e5484d'];
+const hue = s => colors[[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7) % colors.length];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function renderAll(){ renderTags(); render(); }
+function render(){
+  const q = $('q').value.trim().toLowerCase();
+  const list = items.filter(i => (!tag || i.tag === tag) && (!q || (i.title+' '+i.desc+' '+i.tag).toLowerCase().includes(q)));
+  $('grid').hidden = mode !== 'card'; $('egrid').hidden = mode !== 'embed';
+  $('grid').innerHTML = list.map(i => {
+    const thumb = i.img ? `<div class="thumb" style="background-image:url('${esc(i.img)}')"></div>`
+                        : `<div class="thumb" style="background:linear-gradient(135deg,${hue(i.tag)},color-mix(in srgb,${hue(i.tag)} 55%,#000))">${esc([...i.title][0]||'?')}</div>`;
+    return `<div class="card" style="--c:${hue(i.tag)}">${thumb}<div class="body"><span class="tag">${esc(i.tag)}</span><h2>${esc(i.title)}</h2><p>${esc(i.desc)}</p>
+      <div class="row"><a href="${esc(i.url)}" target="_blank" rel="noopener">เปิด</a></div>
+      <div class="row"><button class="sm" data-copy="${esc(i.id)}" title="คัดลอกลิงก์ไปวางที่อื่น">คัดลอกลิงก์</button>
+      <button class="sm" data-edit="${esc(i.id)}" title="แก้ไขชื่อ/ลิงก์/รูป">แก้ไข</button>
+      <button class="sm danger" data-del="${esc(i.id)}" title="ลบการ์ดนี้">ลบ</button></div></div></div>`;
+  }).join('');
+  if (mode === 'embed') {
+    $('egrid').innerHTML = list.map(i => `<div class="ecard" style="--c:${hue(i.tag)}"><div class="pill">${esc(i.title)}</div>
+      <iframe src="${esc(i.url)}" loading="lazy" allowfullscreen title="${esc(i.title)}"></iframe>
+      <div class="row"><a href="${esc(i.url)}" target="_blank" rel="noopener">เปิดเต็มจอ</a></div></div>`).join('');
+  }
+  $('empty').hidden = list.length > 0;
+  const byId = id => items.find(x => x.id === id);
+  document.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => {
+    const u = byId(b.dataset.copy).url;
+    try { await navigator.clipboard.writeText(u); b.textContent = '✓'; setTimeout(()=>b.textContent='คัดลอกลิงก์',1200); } catch(e) { prompt('คัดลอกลิงก์นี้', u); }
+  });
+  document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openDlg(b.dataset.edit));
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    const i = byId(b.dataset.del);
+    if (confirm(`ลบ “${i.title}” ออกจากรายการ?`)) mutate({ action: 'delete', id: i.id }, () => { items = items.filter(x => x.id !== i.id); });
+  });
+}
+function renderTags(){
+  const tags = [...new Set(items.map(i => i.tag))].sort((a, b) => a.localeCompare(b, 'th'));
+  if (tag && !tags.includes(tag)) tag = '';
+  $('tags').innerHTML = ['ทั้งหมด', ...tags].map(t => `<button class="${(t==='ทั้งหมด'?'':t)===tag?'on':''}" data-t="${esc(t)}" style="--c:${t==='ทั้งหมด'?'#4f6df5':hue(t)}">${esc(t)}</button>`).join('');
+  $('tags').querySelectorAll('button').forEach(b => b.onclick = () => { tag = b.dataset.t === 'ทั้งหมด' ? '' : b.dataset.t; renderTags(); render(); });
+  $('tagList').innerHTML = tags.map(t => `<option value="${esc(t)}">`).join('');
+}
+
+/* ----- ฟอร์มเพิ่ม/แก้ ----- */
+function setPrev(){ $('prev').style.backgroundImage = tmpImg ? `url('${tmpImg}')` : 'none'; }
+function openDlg(id){
+  editing = id || ''; const i = id ? items.find(x => x.id === id) : {title:'',url:'',desc:'',tag:'',img:''};
+  $('dTitle').textContent = id ? 'แก้ไขรายงาน' : 'เพิ่มรายงาน';
+  $('fTitle').value = i.title; $('fUrl').value = i.url; $('fDesc').value = i.desc; $('fTag').value = i.tag; $('fImg').value = '';
+  tmpImg = i.img || ''; setPrev(); $('dlg').showModal();
+}
+$('bAdd').onclick = () => openDlg('');
+$('dCancel').onclick = () => $('dlg').close();
+$('dDelImg').onclick = () => { tmpImg = ''; $('fImg').value = ''; setPrev(); };
+$('fImg').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const im = new Image(), r = new FileReader();
+  r.onload = () => { im.onload = () => {
+    let w = Math.min(320, im.width), q = 0.7, out = '';
+    for (let k = 0; k < 8; k++) {            // ย่อจนเล็กพอใส่ในเซลล์ของชีต (< 40,000 ตัวอักษร)
+      const h = Math.round(im.height * w / im.width);
+      const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im,0,0,w,h);
+      out = c.toDataURL('image/jpeg', q);
+      if (out.length < 40000) break;
+      q = Math.max(0.4, q - 0.1); w = Math.round(w * 0.85);
+    }
+    tmpImg = out; setPrev(); }; im.src = r.result; };
+  r.readAsDataURL(f);
+};
+$('dSave').onclick = () => {
+  let url = $('fUrl').value.trim(); const title = $('fTitle').value.trim();
+  if (!title) { alert('ใส่ชื่อรายงานก่อน'); return; }
+  if (!url) { alert('ใส่ลิงก์ก่อน'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const it = { id: editing || uid(), title, url, desc: $('fDesc').value.trim(), tag: $('fTag').value.trim() || 'ทั่วไป', img: tmpImg };
+  $('dlg').close();
+  mutate({ action: editing ? 'update' : 'add', item: it }, () => {
+    if (editing) items = items.map(x => x.id === it.id ? it : x); else items.push(it);
+  });
+};
+
+/* ----- ตั้งค่า / สำรอง / ย้ายข้อมูล ----- */
+function lockUrl(on){ $('sUrl').readOnly = on; $('bUnlock').textContent = on ? '🔒 ปลดล็อกเพื่อแก้ไข URL' : '🔓 กำลังแก้ไข URL'; }
+$('bUnlock').onclick = () => { if ($('sUrl').readOnly && confirm('แก้ URL ผิดอาจทำให้เชื่อม Sheet ไม่ได้ แน่ใจว่าจะแก้ไข?')) lockUrl(false); };
+$('bSet').onclick = () => { $('sUrl').value = store.get('ml_url') || WEBAPP_URL; $('sTok').value = apiTok(); lockUrl(!!WEBAPP_URL || !!store.get('ml_url')); $('sdlg').showModal(); };
+$('sCancel').onclick = () => $('sdlg').close();
+$('sSave').onclick = () => {
+  const v = $('sUrl').value.trim();
+  if (!v) store.del('ml_url');   // ช่องว่าง = กลับไปใช้ URL ที่ฝังในไฟล์
+  else {
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/\S+\/exec$/.test(v) && !confirm('URL นี้ไม่เหมือนลิงก์ Web App (ต้องขึ้นต้น https://script.google.com/macros/s/ และลงท้าย /exec) บันทึกต่อไปไหม?')) return;
+    store.set('ml_url', v);
+  }
+  store.set('ml_tok', $('sTok').value.trim()); $('sdlg').close(); load();
+};
+$('bBackup').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(items,null,1)], {type:'application/json'}));
+  a.download = 'my-launcher_backup.json'; a.click();
+};
+$('bRestore').onclick = () => $('fRestore').click();
+$('fRestore').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return; e.target.value = '';
+  try {
+    const d = JSON.parse(await f.text());
+    if (!Array.isArray(d) || !d.every(x => x.title && x.url)) throw 0;
+    d.forEach(x => { x.id = x.id || uid(); x.desc = x.desc || ''; x.tag = x.tag || 'ทั่วไป'; x.img = x.img || ''; });
+    if (confirm(`นำเข้า ${d.length} รายการ? รายการปัจจุบันจะถูกแทนที่`)) { $('sdlg').close(); mutate({ action: 'replace', items: d }, () => { items = d; }); }
+  } catch(err) { alert('ไฟล์สำรองไม่ถูกต้อง'); }
+};
+$('bMigrate').onclick = () => {
+  const d = localLoad();
+  if (!d || !d.length) { alert('ไม่พบรายการที่เก็บไว้ในเบราว์เซอร์นี้'); return; }
+  if (!apiUrl()) { alert('กรอก Web App URL แล้วกด "บันทึกการตั้งค่า" ก่อน'); return; }
+  if (confirm(`ส่ง ${d.length} รายการในเบราว์เซอร์นี้ขึ้น Sheet? รายการใน Sheet ตอนนี้จะถูกแทนที่`)) { $('sdlg').close(); mutate({ action: 'replace', items: d }, () => {}); }
+};
+
+$('q').oninput = render;
+$('bReload').onclick = load;
+$('mCard').onclick = () => { mode='card'; $('mCard').classList.add('on'); $('mEmb').classList.remove('on'); render(); };
+$('mEmb').onclick = () => { mode='embed'; $('mEmb').classList.add('on'); $('mCard').classList.remove('on'); render(); };
+load();
+</script>
+</body>
+</html>
